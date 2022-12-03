@@ -1,48 +1,56 @@
-﻿using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using PizzaStore.Models;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<PizzaDb>(options => options.UseInMemoryDatabase("items"));
+builder.Services.AddSqlite<PizzaDb>(connectionString);
 builder.Services.AddSwaggerGen(c =>
 {
-     c.SwaggerDoc("v1", new OpenApiInfo {
-         Title = "PizzaStore API",
-         Description = "Making the Pizzas you love",
+    c.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "PizzaStore API",
+        Description = "Making the pizzas you love",
          Version = "v1" });
 });
 
 var app = builder.Build();
-
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PizzaStore API V1");
+    });
+
+    // app.MapGet("/", () => "Hello World");
+
+    app.MapGet("/pizzas", async(PizzaDb db) => await db.Pizzas.ToListAsync());
+    app.MapPost("/pizzas", async(PizzaDb db, Pizza pizza) => {
+        await db.Pizzas.AddAsync(pizza);
+        await db.SaveChangesAsync();
+        return Results.Created($"/pizzas/{pizza.Id}", pizza);
+    });
+    app.MapGet("/pizza/{id}", async(PizzaDb db, int id) => await db.Pizzas.FindAsync(id));
+
+    app.MapPut("/pizza/{id}", async (PizzaDb db, Pizza updatepizza, int id) =>
 {
-   c.SwaggerEndpoint("/swagger/v1/swagger.json", "PizzaStore API V1");
+      var pizza = await db.Pizzas.FindAsync(id);
+      if (pizza is null) return Results.NotFound();
+      pizza.Name = updatepizza.Name;
+      pizza.Description = updatepizza.Description;
+      await db.SaveChangesAsync();
+      return Results.NoContent();
 });
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapGet("/pizzas", async (PizzaDb db) => await db.Pizzas.ToListAsync());
-app.Run();
-
+    app.MapDelete("/pizza/{id}", async (PizzaDb db, int id) =>
+    {
+    var pizza = await db.Pizzas.FindAsync(id);
+    if (pizza is null)
+    {
+        return Results.NotFound();
+    }
+    db.Pizzas.Remove(pizza);
+    await db.SaveChangesAsync();
+    return Results.Ok();
+    });
+    app.Run();
