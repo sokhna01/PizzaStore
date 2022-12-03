@@ -1,0 +1,8 @@
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.csproj.AssemblyReference.cache
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.GeneratedMSBuildEditorConfig.editorconfig
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.AssemblyInfoInputs.cache
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.AssemblyInfo.cs
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.csproj.CoreCompileInputs.cache
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.MvcApplicationPartsAssemblyInfo.cache
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.RazorAssemblyInfo.cache
+/Users/maoumi/Projects/PizzaStore/obj/Debug/net6.0/PizzaStore.RazorAssemblyInfo.cs
